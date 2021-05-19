@@ -1,5 +1,7 @@
 package com.amazon.textract.pdf;
 
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -36,8 +38,7 @@ public class PDFDocument {
         float width = page.getMediaBox().getWidth();
 
         PDPageContentStream contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, false );
-        contentStream.setRenderingMode(RenderingMode.NEITHER);
-
+        contentStream.setRenderingMode (RenderingMode.NEITHER);
         for (TextLine cline : lines){
             FontInfo fontInfo = calculateFontSize(cline.text, (float)cline.width*width, (float)cline.height*height);
 
@@ -89,16 +90,26 @@ public class PDFDocument {
 
         float width = image.getWidth();
         float height = image.getHeight();
-
+        //width =(float)0.5 * height;
+        //height =(float)0.5 * height;
+        
         PDRectangle box = new PDRectangle(width, height);
         PDPage page = new PDPage(box);
         page.setMediaBox(box);
         this.document.addPage(page);
 
         PDImageXObject pdImage = null;
+        PDDocument d = new PDDocument();
+        
+        PDPage my_page = new PDPage();
+        d.addPage(my_page);
+
+        PDFRenderer pdfRenderer = new PDFRenderer(d);
+
 
         if(imageType == ImageType.JPEG){
-            pdImage = JPEGFactory.createFromImage(this.document, image);
+            image = pdfRenderer.renderImageWithDPI(0, 300, org.apache.pdfbox.rendering.ImageType.RGB);
+            pdImage = JPEGFactory.createFromImage(this.document, image, (float)0.05);
         }
         else {
             pdImage = LosslessFactory.createFromImage(this.document, image);
@@ -106,9 +117,9 @@ public class PDFDocument {
 
         PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
-        contentStream.drawImage(pdImage, 0, 0);
+        contentStream.drawImage(pdImage, 0, 0 ,width ,height);
 
-        contentStream.setRenderingMode(RenderingMode.NEITHER);
+        contentStream.setRenderingMode(RenderingMode.FILL); //FILL
 
         for (TextLine cline : lines){
             FontInfo fontInfo = calculateFontSize(cline.text, (float)cline.width*width, (float)cline.height*height);
@@ -120,6 +131,7 @@ public class PDFDocument {
         }
 
         contentStream.close();
+        d.close();
     }
 
     public void save(String path) throws IOException {
