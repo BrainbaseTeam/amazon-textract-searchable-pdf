@@ -157,7 +157,7 @@ public class ConvertPdfToLocalPdfJson {
         for (int page = 0; page < inputDocument.getNumberOfPages(); ++page) {
 
             //Render image
-            image = pdfRenderer.renderImageWithDPI(page, 300, org.apache.pdfbox.rendering.ImageType.RGB);
+            image = pdfRenderer.renderImageWithDPI(page, 300, org.apache.pdfbox.rendering.ImageType.BINARY);//.RGB);
 
 
             //Get image bytes

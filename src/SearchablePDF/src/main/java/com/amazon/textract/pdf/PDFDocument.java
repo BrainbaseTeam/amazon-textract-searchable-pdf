@@ -90,8 +90,8 @@ public class PDFDocument {
 
         float width = image.getWidth();
         float height = image.getHeight();
-        //width =(float)0.5 * height;
-        //height =(float)0.5 * height;
+        width =width / (float)300.0 * (float)72.0;
+        height =height / (float)300.0 * (float)72.0;
         
         PDRectangle box = new PDRectangle(width, height);
         PDPage page = new PDPage(box);
@@ -108,7 +108,7 @@ public class PDFDocument {
 
 
         if(imageType == ImageType.JPEG){
-            image = pdfRenderer.renderImageWithDPI(0, 300, org.apache.pdfbox.rendering.ImageType.RGB);
+            //image = pdfRenderer.renderImageWithDPI(0, 300, org.apache.pdfbox.rendering.ImageType.RGB);
             pdImage = JPEGFactory.createFromImage(this.document, image, (float)0.05);
         }
         else {
@@ -119,7 +119,7 @@ public class PDFDocument {
 
         contentStream.drawImage(pdImage, 0, 0 ,width ,height);
 
-        contentStream.setRenderingMode(RenderingMode.FILL); //FILL
+        contentStream.setRenderingMode(RenderingMode.NEITHER); //FILL
 
         for (TextLine cline : lines){
             FontInfo fontInfo = calculateFontSize(cline.text, (float)cline.width*width, (float)cline.height*height);
